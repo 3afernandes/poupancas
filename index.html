@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Poupanças</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #444;
+        }
+        #chartContainer {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Calculadora de Poupanças</h1>
+        <label for="initialSavings">💵 Poupanças Iniciais (€):</label>
+        <input type="number" id="initialSavings" placeholder="Exemplo: 1000">
+
+        <label for="monthlySavings">💵 Poupança Mensal (€):</label>
+        <input type="number" id="monthlySavings" placeholder="Exemplo: 300">
+
+        <label for="subsidies">💵 Subsídios Anuais (€):</label>
+        <input type="number" id="subsidies" placeholder="Exemplo: 800">
+
+        <label for="gifts">💵 Presentes (€):</label>
+        <input type="number" id="gifts" placeholder="Exemplo: 500">
+
+        <button onclick="calculateSavings()">Calcular Poupanças</button>
+
+        <div class="result" id="result"></div>
+
+        <div id="chartContainer">
+            <canvas id="savingsChart"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        function calculateSavings() {
+            const initialSavings = parseFloat(document.getElementById('initialSavings').value) || 0;
+            const monthlySavings = parseFloat(document.getElementById('monthlySavings').value) || 0;
+            const subsidies = parseFloat((document.getElementById('subsidies').value) || 0) * 2;
+            const gifts = parseFloat(document.getElementById('gifts').value) || 0;
+
+            const monthsToSeptember2027 = (2 * 12) + 9; // De agora até setembro de 2027
+            const totalSavings = initialSavings + (monthlySavings * monthsToSeptember2027) + (subsidies) + (gifts);
+
+            const annualSavings = (monthlySavings * 12) + subsidies + gifts;
+
+            // Cenários: Pessimista, Ideal, Otimista
+            const pessimistic = totalSavings * 0.9;
+            const ideal = totalSavings;
+            const optimistic = totalSavings * 1.1;
+
+            const minEntry = 11500;
+            const maxEntry = 18000;
+
+            // Atualiza a seção de resultados
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <p>🧮 Poupança Anual: <strong>${annualSavings.toFixed(2)} €</strong></p>
+                <p>🧮 Total até Setembro 2027: <strong>${totalSavings.toFixed(2)} €</strong></p>
+            `;
+
+            // Desenha o gráfico
+            const ctx = document.getElementById('savingsChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Cenário Pessimista', 'Cenário Ideal', 'Cenário Otimista', 'Entrada Mínima', 'Entrada Máxima'],
+                    datasets: [{
+                        label: 'Poupanças (€)',
+                        data: [pessimistic, ideal, optimistic, minEntry, maxEntry],
+                        backgroundColor: ['#FF5733', '#4CAF50', '#45a049', '#FFC300', '#FF5733']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.raw.toFixed(2)} €`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Valor (€)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
